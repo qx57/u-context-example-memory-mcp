@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Поиск · Память тестов</title>
+    <link rel="stylesheet" th:href="@{/ui.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: topbar}"></header>
+<main>
+    <h1>Результаты поиска</h1>
+    <p th:if="${#lists.isEmpty(items)}" class="panel">Подходящих наблюдений нет.</p>
+    <article class="panel" th:each="item : ${items}">
+        <span class="outcome" th:attr="data-outcome=${item.effectiveOutcome}" th:text="${item.effectiveOutcome}"></span>
+        <h2><a th:href="@{/ui/memories/{id}(id=${item.observationId})}" th:text="${item.task}"></a></h2>
+        <small th:text="${item.method + ' ' + item.route}"></small>
+        <p th:text="${item.approach}"></p>
+    </article>
+</main>
+</body>
+</html>

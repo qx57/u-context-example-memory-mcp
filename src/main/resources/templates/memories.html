@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Наблюдения · Память тестов</title>
+    <link rel="stylesheet" th:href="@{/ui.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: topbar}"></header>
+<main>
+    <h1>Наблюдения</h1>
+    <details class="panel">
+        <summary>Поиск по смыслу</summary>
+        <form method="post" th:action="@{/ui/memories/search}" class="fields">
+            <label>Сервис<input name="serviceId" maxlength="128" required th:value="${filters['serviceId']}"></label>
+            <label>Окружение<input name="environment" maxlength="128" required th:value="${filters['environment']}"></label>
+            <label>Запрос<input name="query" maxlength="1000" required></label>
+            <button type="submit">Найти</button>
+        </form>
+    </details>
+    <form method="get" th:action="@{/ui/memories}" class="panel fields" aria-label="Фильтры наблюдений">
+        <label>Сервис<input name="serviceId" maxlength="128" th:value="${filters['serviceId']}"></label>
+        <label>Окружение<input name="environment" maxlength="128" th:value="${filters['environment']}"></label>
+        <label>Прогон<input name="runId" maxlength="128" th:value="${filters['runId']}"></label>
+        <label>Оценка
+            <select name="outcome">
+                <option value="">Любая</option>
+                <option value="SUCCEEDED" th:selected="${filters['outcome'] == 'SUCCEEDED'}">Успех</option>
+                <option value="FAILED" th:selected="${filters['outcome'] == 'FAILED'}">Неудача</option>
+                <option value="INCONCLUSIVE" th:selected="${filters['outcome'] == 'INCONCLUSIVE'}">Неопределённо</option>
+            </select>
+        </label>
+        <label>Статус
+            <select name="status">
+                <option value="ACTIVE">Активные</option>
+                <option value="ARCHIVED" th:selected="${filters['status'] == 'ARCHIVED'}">Архивные</option>
+            </select>
+        </label>
+        <button type="submit">Применить</button>
+    </form>
+    <p th:if="${#lists.isEmpty(items)}" class="panel">Наблюдений по этим фильтрам нет.</p>
+    <div th:unless="${#lists.isEmpty(items)}" class="table-scroll">
+        <table>
+            <thead><tr><th>Тест</th><th>Сервис</th><th>Прогон</th><th>Итог</th><th>Время UTC</th></tr></thead>
+            <tbody>
+            <tr th:each="item : ${items}">
+                <td>
+                    <a th:href="@{/ui/memories/{id}(id=${item.observationId})}" th:text="${item.task}"></a>
+                    <small th:text="${item.method + ' ' + item.route}"></small>
+                </td>
+                <td><span th:text="${item.serviceId}"></span><small th:text="${item.environment}"></small></td>
+                <td th:text="${item.runId}"></td>
+                <td><span class="outcome" th:attr="data-outcome=${item.effectiveOutcome}"
+                          th:text="${item.effectiveOutcome}"></span>
+                    <small th:text="${item.outcomeSource == 'MANUAL' ? 'Ручная оценка' : 'Автоматически'}"></small>
+                </td>
+                <td th:text="${item.observedAt}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p th:if="${nextUrl}"><a th:href="${nextUrl}">Следующая страница</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="topbar">
+    <nav>
+        <a th:href="@{/ui/memories}" class="brand">Память тестов</a>
+        <form method="post" th:action="@{/logout}"><button class="secondary" type="submit">Выйти</button></form>
+    </nav>
+</header>
+</body>
+</html>

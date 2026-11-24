@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Карточка · Память тестов</title>
+    <link rel="stylesheet" th:href="@{/ui.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: topbar}"></header>
+<main>
+    <a th:href="@{/ui/memories}">← Наблюдения</a>
+    <h1 th:text="${item.task}"></h1>
+    <p><span class="outcome" th:attr="data-outcome=${item.effectiveOutcome}" th:text="${item.effectiveOutcome}"></span>
+        <span th:text="${item.status == 'ARCHIVED' ? 'В архиве' : 'Активно'}"></span></p>
+    <section class="panel" aria-labelledby="evidence-title">
+        <h2 id="evidence-title">Прогон</h2>
+        <dl>
+            <dt>Сервис и окружение</dt><dd th:text="${item.serviceId + ' / ' + item.environment}"></dd>
+            <dt>Прогон и тест</dt><dd th:text="${item.runId + ' / ' + item.testCaseId}"></dd>
+            <dt>Маршрут</dt><dd th:text="${item.method + ' ' + item.route}"></dd>
+            <dt>Время UTC</dt><dd th:text="${item.observedAt}"></dd>
+            <dt>Подход</dt><dd th:text="${item.approach}"></dd>
+            <dt>Ожидали</dt><dd th:text="${item.evidence.expected}"></dd>
+            <dt>Получили</dt><dd th:text="${item.evidence['observed'] ?: '—'}"></dd>
+            <dt>Статус выполнения</dt><dd th:text="${item.evidence.executionStatus}"></dd>
+            <th:block th:if="${item.evidence.executionStatus == 'COMPLETED'}">
+                <dt>Проверки прошли</dt><dd th:text="${item.evidence.passedAssertions}"></dd>
+                <dt>Проверки не прошли</dt><dd th:text="${item.evidence.failedAssertions}"></dd>
+            </th:block>
+            <th:block th:if="${item.evidence['reportRef']}">
+                <dt>Отчёт</dt><dd th:text="${item.evidence['reportRef']}"></dd>
+            </th:block>
+            <dt>Автоматическая оценка</dt><dd th:text="${item.autoOutcome}"></dd>
+            <dt>Идентификатор</dt><dd th:text="${item.observationId}"></dd>
+        </dl>
+    </section>
+    <section class="panel" aria-labelledby="review-title">
+        <h2 id="review-title">Ручная оценка</h2>
+        <form method="post" th:action="@{/ui/memories/{id}(id=${item.observationId})}" class="review">
+            <input type="hidden" name="revision" th:value="${item.revision}">
+            <label>Итог
+                <select name="verdict">
+                    <option value="SUCCEEDED" th:selected="${item.effectiveOutcome == 'SUCCEEDED'}">Успех</option>
+                    <option value="FAILED" th:selected="${item.effectiveOutcome == 'FAILED'}">Неудача</option>
+                    <option value="INCONCLUSIVE" th:selected="${item.effectiveOutcome == 'INCONCLUSIVE'}">Неопределённо</option>
+                </select>
+            </label>
+            <label>Причина<textarea name="reason" rows="3" maxlength="500" required
+                   th:text="${item.manualReview == null ? '' : item.manualReview.reason}"></textarea></label>
+            <small th:if="${item.manualReview}"
+                   th:text="${item.manualReview.reviewerId + ' · ' + item.manualReview.reviewedAt}"></small>
+            <div class="actions">
+                <button type="submit" name="action" value="review">Сохранить оценку</button>
+                <button th:if="${item.manualReview}" type="submit" name="action" value="clearReview"
+                        formnovalidate class="secondary">Снять ручную оценку</button>
+            </div>
+        </form>
+    </section>
+    <form method="post" th:action="@{/ui/memories/{id}(id=${item.observationId})}" class="actions">
+        <input type="hidden" name="revision" th:value="${item.revision}">
+        <button th:if="${item.status == 'ACTIVE'}" type="submit" name="action" value="archive"
+                class="secondary">В архив</button>
+        <button th:if="${item.status == 'ARCHIVED'}" type="submit" name="action" value="restore"
+                class="secondary">Восстановить</button>
+    </form>
+</main>
+</body>
+</html>

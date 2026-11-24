@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ошибка · Память тестов</title>
+    <link rel="stylesheet" th:href="@{/ui.css}">
+</head>
+<body>
+<header th:replace="~{fragments :: topbar}"></header>
+<main>
+    <section class="panel">
+        <h1 th:text="${message}">Ошибка</h1>
+        <p>Запрос <code th:text="${requestId}"></code></p>
+        <a th:href="@{/ui/memories}">Открыть наблюдения</a>
+    </section>
+</main>
+</body>
+</html>
